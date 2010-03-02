@@ -10,15 +10,15 @@ This code is largely equivalent to the code powering Bitbucket.org.
 
 __docformat__ = "restructedtext"
 
-from django.http import HttpresponseonseRedirect, Httpresponseonse
+from django.http import HttpResponseRedirect, HttpResponse
 from django.conf import settings
-from django.shortcuts import render_to_responseonse
+from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.contrib.auth.models import User
 from hgwebproxy.proxy import HgRequestWrapper, hgwebdir
 
 def hgroot(request, *args):
-    response = Httpresponseonse()
+    response = HttpResponse()
     hgr = HgRequestWrapper(request, response)
 
     """
@@ -46,7 +46,7 @@ def hgroot(request, *args):
     else:
         # This is a standard web request
         if not request.user.is_authenticated():
-            return HttpresponseonseRedirect('%s?next=%s' %
+            return HttpResponseRedirect('%s?next=%s' %
                                         (settings.LOGIN_URL,request.path))
         else:
             authed = request.user.username
@@ -87,6 +87,6 @@ def hgroot(request, *args):
     Otherwise, send the content on to the template, for any kind
     of custom layout you want around it.
     """
-    return render_to_responseonse("flat.html",
+    return render_to_response("flat.html",
         { 'content': response.content, },
         RequestContext(request))
