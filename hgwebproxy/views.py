@@ -93,6 +93,7 @@ def repo_detail(request, username, pattern):
         hgserve.repo.ui.setconfig('web', 'templates', hgwebproxy_settings.STYLES_PATH)
         hgserve.templatepath = hgserve.repo.ui.config('web', 'templates', template_paths)
     
+    # TODO: Look if style exists
     if not repo.style == '':
         hgserve.repo.ui.setconfig('web', 'style', repo.style)
 
