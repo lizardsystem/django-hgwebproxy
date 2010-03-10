@@ -40,7 +40,7 @@ class HgRequestWrapper(object):
         self.env = request.META
         self._response = response
         # Remove the prefix so HG will think it's running on its own.
-        self.env['SCRIPT_NAME'] = script_name 
+        self.env['SCRIPT_NAME'] = script_name
         self.env['PATH_INFO'] = self.env['PATH_INFO'].replace(self.env['SCRIPT_NAME'], "", 1)
 
         # Make sure there's a content-length.
@@ -64,7 +64,7 @@ class HgRequestWrapper(object):
         """
         self.env['REMOTE_USER'] = username
 
-    def read(self, count=-1):
+    def read(self, count= -1):
         return self.inp.read(count)
 
     def flush(self):
@@ -73,7 +73,7 @@ class HgRequestWrapper(object):
         """
         return None
 
-    _responded=False
+    _responded = False
     def respond(self, code, content_type=None, path=None, length=0):
         """
         `hgweb` uses this for headers, and is necessary to have things
@@ -100,7 +100,7 @@ class HgRequestWrapper(object):
 
             self._responded = True
 
-    def header(self, headers=[('Content-Type','text/html')]):
+    def header(self, headers=[('Content-Type', 'text/html')]):
         """
         Set a header for the requestuest. `hgweb` uses this too.
         """

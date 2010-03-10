@@ -2,7 +2,6 @@
 
 from django.contrib.auth.models import User
 from django.test import TestCase as DjangoTestCase
-from django.core.urlresolvers import reverse
 
 from hgwebproxy.models import Repository
 
@@ -20,37 +19,31 @@ class PermissionTest(DjangoTestCase):
         self.assertTrue(repo.can_push(user))
 
     def test_admin(self):
-        user = User.objects.get(username="admin") 
+        user = User.objects.get(username="admin")
         repo = Repository.objects.get(slug='test-repo')
 
         self.assertWriter(repo, user)
 
     def test_reader(self):
-        user = User.objects.get(username="reader") 
+        user = User.objects.get(username="reader")
         repo = Repository.objects.get(slug='test-repo')
 
         self.assertReader(repo, user)
 
     def test_writer(self):
-        user = User.objects.get(username="writer") 
+        user = User.objects.get(username="writer")
         repo = Repository.objects.get(slug='test-repo')
 
         self.assertWriter(repo, user)
 
     def test_group_reader(self):
-        user = User.objects.get(username="group_reader") 
+        user = User.objects.get(username="group_reader")
         repo = Repository.objects.get(slug='test-repo')
 
         self.assertReader(repo, user)
 
-    def test_writer(self):
-        user = User.objects.get(username="group_writer") 
-        repo = Repository.objects.get(slug='test-repo')
-
-        self.assertWriter(repo, user)
-
     def test_owner(self):
-        user = User.objects.get(username="owner") 
+        user = User.objects.get(username="owner")
         repo = Repository.objects.get(slug='test-repo')
 
         self.assertWriter(repo, user)

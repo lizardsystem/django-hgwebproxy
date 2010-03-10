@@ -28,7 +28,7 @@ TIME_ZONE = 'America/Chicago'
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
-LANGUAGE_CODE = 'en'
+LANGUAGE_CODE = 'es'
 
 SITE_ID = 1
 
@@ -66,10 +66,6 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
 )
 
-IGNORABLE_404_STARTS = ('/cgi-bin/', '/_vti_bin', '/_vti_inf')
-
-IGNORABLE_404_ENDS = ('mail.pl', 'mailform.pl', 'mail.cgi', 'mailform.cgi', 'favicon.ico', '.php')
-
 ROOT_URLCONF = 'example.urls'
 
 TEMPLATE_CONTEXT_PROCESSORS = (
@@ -94,12 +90,6 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.admin',
     'django.contrib.humanize',
-    'django.contrib.admindocs',
     'hgwebproxy',
 )
 
-LOGIN_URL = '/login/'
-
-HGPROXY_REPO_PERMANENT_DELETE=True
-APPEND_SLASH=False
-HGPROXY_STATIC_URL='foo/'

@@ -1,0 +1,54 @@
+{% extends "admin/base_site.html" %}
+{% load i18n adminmedia %}
+{% block title %}
+	{% trans 'Mercurial repository index' %}
+{% endblock %}
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" type="text/css" href="{% admin_media_prefix %}css/changelists.css" />
+{% endblock %}
+{% block breadcrumbs %}<div class="breadcrumbs"></div>{% endblock %}
+{% block bodyclass %}change-list{% endblock %}
+{% block coltype %}flex{% endblock %}
+{% block content %}
+
+<h1>{% trans 'Mercurial Repositories' %}</h1>
+
+<div id="changelist" class="module">
+<table cellspacing="0">
+    <caption>Changes</caption>
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>Description</th>
+        <th>Contact</th>
+        <th>Last change</th>
+        <th>Feed</th>
+    </tr>
+    <tbody>
+    {% for repo in repos %}
+    <tr class="row">
+        <th><a href="{{repo.get_absolute_url}}">{{repo.name}}</a></th>
+        <td>{{repo.description}}</td>
+        <td>{{repo.owner}}</td>
+        <td>{{repo.get_lastchange}}</td>
+        <td>
+            <div class="rss_logo">
+            <a href="{{repo.get_absolute_url}}rss-log">RSS</a>
+            <a href="{{repo.get_absolute_url}}atom-log">Atom</a>
+            </div>
+        </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+</div>
+<div id="powered-by">
+    <p>
+        <a href="http://www.selenic.com/mercurial/" title="Mercurial">Mercurial</a>
+        and <a href="http://djangoproject.org" title="Django">Django</a>
+    </p>
+</div>
+    
+{% endblock %}
+

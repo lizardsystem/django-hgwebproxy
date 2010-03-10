@@ -1,3 +1,4 @@
+# -*- coding:utf8 -*-
 from distutils.command.install_data import install_data
 from distutils.command.install import INSTALL_SCHEMES
 
@@ -72,7 +73,7 @@ setup(
     version='0.2.0',
     description='Django-hgwebproxy is an app to use and manage mercurial repositories within the django admin interface',
     long_description=open('README.rst').read(),
-    author='Mario C&Atilde;&copy;sar Se&Atilde;&plusmn;oranis Ayala',
+    author='Mario César Señoranis Ayala',
     author_email='mariocesar.c50@gmail.com',
     url='http://bitbucket.org/mariocesar/django-hgweproxy/',
     packages = packages,

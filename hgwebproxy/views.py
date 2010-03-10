@@ -1,189 +1,56 @@
-from django.http import HttpResponse, HttpResponseRedirect, HttpResponsePermanentRedirect
-from django.core.exceptions import PermissionDenied, ImproperlyConfigured
-from django.shortcuts import redirect, render_to_response, get_object_or_404
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseServerError
+from django.core.exceptions import PermissionDenied
+from django.shortcuts import render_to_response, get_object_or_404
 from django.utils.translation import ugettext as _
 from django.utils.http import urlquote
-from django.utils.encoding import smart_str 
+from django.utils.encoding import smart_str
 from django.conf import settings
-
-from django.contrib.auth.models import User
+from django.template import RequestContext
+from django.db.models import Q
 
 from hgwebproxy.proxy import HgRequestWrapper
 from hgwebproxy.utils import is_mercurial, basic_auth
 from hgwebproxy.models import Repository
-from hgwebproxy import settings as hgwebproxy_settings 
+from hgwebproxy import settings as hgwebproxy_settings
 
-from mercurial.hgweb import hgwebdir, hgweb, common, webutil
-from mercurial import ui, hg, util, templater
-from mercurial import error, encoding
+from mercurial.hgweb import hgweb
+from mercurial import templater
 
-"""
-Simple Django view code that proxies requests through
-to `hgweb` and handles authentication on `POST` up against
-Djangos own built in authentication layer.
-"""
+import os
 
-def repo_list(request, pattern):
-    # Handle repo_detail
-    slug = pattern.split('/')[0]
-    try:
-        repo = Repository.objects.get(slug=slug)
-        return repo_detail(request, slug=slug)
-    except Repository.DoesNotExist:
-        pass
+def repo_index(request):
+    repo_all = Repository.objects.filter(Q(is_private=False) | Q(owner=request.user))
+    return render_to_response("hgwebproxy/repo_all.html", {'repos': repo_all}, 
+        RequestContext(request))
 
-    if hgwebproxy_settings.REPO_LIST_REQUIRES_LOGIN and not request.user.is_authenticated():
-        return redirect(settings.LOGIN_URL) 
+def repo_detail(request, username, pattern):
+    """
+    Repository detail view.
+    """
 
-    u = ui.ui()
-    u.setconfig('ui', 'report_untrusted', 'off')
-    u.setconfig('ui', 'interactive', 'off')
-
-    #stripecount = u.config('web', 'stripes', 1)
-    stripecount = 1 
-    response = HttpResponse()
-
-    #TODO: Is this right?
-    url = request.path
-    if not url.endswith('/'):
-        url += '/'
-
-    def header(**map):
-        yield tmpl('header', encoding=encoding.encoding, **map)
-
-    def footer(**map):
-        yield tmpl("footer", **map)
-
-    def motd(**map):
-        yield "" 
-
-    def archivelist(ui, nodeid, url):
-        # TODO: support archivelist
-        if 1 == 2:  
-            yield ""
-
-    sortdefault = 'name', False
-    def entries(sortcolumn="", descending=False, subdir="", **map):
-        rows = []
-        parity = common.paritygen(stripecount)
-        for repo in Repository.objects.all():
-            if repo.can_browse(request.user): 
-                contact = smart_str(repo.owner.get_full_name())
-
-                lastchange = (common.get_mtime(repo.location), util.makedate()[1])
-                 
-                row = dict(contact=contact or "unknown",
-                           contact_sort=contact.upper() or "unknown",
-                           name=smart_str(repo.name),
-                           name_sort=smart_str(repo.name),
-                           url=repo.get_absolute_url(),
-                           description=smart_str(repo.description) or "unknown",
-                           description_sort=smart_str(repo.description.upper()) or "unknown",
-                           lastchange=lastchange,
-                           lastchange_sort=lastchange[1]-lastchange[0],
-                           archives=archivelist(u, "tip", url))
-                if (not sortcolumn or (sortcolumn, descending) == sortdefault):
-                    # fast path for unsorted output
-                    row['parity'] = parity.next()
-                    yield row
-                else:
-                    rows.append((row["%s_sort" % sortcolumn], row))
-
-        if rows:
-            rows.sort()
-            if descending:
-                rows.reverse()
-            for key, row in rows:
-                row['parity'] = parity.next()
-                yield row
-
-    if settings.DEBUG:
-        # Handle static files 
-        if pattern.startswith("static/"): 
-            static = templater.templatepath('static')
-            fname = pattern[7:]
-            req = HgRequestWrapper(
-                request,
-                response,
-                script_name=url,
-            )
-            response.write(''.join([each for each in (common.staticfile(static, fname, req))]))
-            return response
-
-    defaultstaticurl = request.path + 'static/'
-    staticurl = hgwebproxy_settings.STATIC_URL or defaultstaticurl if not settings.DEBUG else defaultstaticurl 
-
-    if hgwebproxy_settings.TEMPLATE_PATHS is not None:
-        hgserve.templatepath = hgwebproxy_settings.TEMPLATE_PATHS 
-
-    vars = {}
-    start = url[-1] == '?' and '&' or '?'
-    sessionvars = webutil.sessionvars(vars, start)
+    repo_name = pattern.split('/')[0]
+    repo = get_object_or_404(Repository, slug=repo_name, owner__username=username)
     
-    if not templater.templatepath(hgwebproxy_settings.STYLE):
-        raise ImproperlyConfigured(_("'%s' is not an available style. Please check the HGPROXY_STYLE property in your settings.py" % STYLE))
-
-    mapfile = templater.stylemap(hgwebproxy_settings.STYLE)
-    tmpl = templater.templater(mapfile,
-                               defaults={"header": header,
-                                         "footer": footer,
-                                         "motd": motd,
-                                         "url": url,
-                                         "staticurl": staticurl,
-                                         "sessionvars": sessionvars})
-
-    #Support for descending, sortcolumn etc.
-    sortable = ["name", "description", "contact", "lastchange"]
-    sortcolumn, descending = sortdefault
-    if 'sort' in request.GET:
-        sortcolumn = request.GET['sort']
-        descending = sortcolumn.startswith('-')
-        if descending:
-            sortcolumn = sortcolumn[1:]
-        if sortcolumn not in sortable:
-            sortcolumn = ""
-
-    sort = [("sort_%s" % column,
-             "%s%s" % ((not descending and column == sortcolumn)
-                        and "-" or "", column))
-            for column in sortable]
-
-    chunks = tmpl("index", entries=entries, subdir="",
-                    sortcolumn=sortcolumn, descending=descending,
-                    **dict(sort))
-    
-    for chunk in chunks:
-        response.write(chunk)
-    return response
-
-def repo_detail(request, slug):
-    repo = get_object_or_404(Repository, slug=slug)
+    """
+    Instance the hgweb wrapper
+    """
     response = HttpResponse()
-    hgr = HgRequestWrapper(
-        request,
-        response,
-        script_name=repo.get_absolute_url(),
-    )
+    hgr = HgRequestWrapper(request, response, script_name=repo.get_absolute_url())
 
     """
     Authenticate on all requests. To authenticate only against 'POST'
-    requests, uncomment the line below the comment.
-
-    Currently, repositories are only viewable by authenticated users.
-    If authentication is only done on 'POST' request, then
-    repositories are readable by anyone. but only authenticated users
-    can push.
+    requests
     """
 
-    realm = hgwebproxy_settings.AUTH_REALM # Change if you want.
+    realm = hgwebproxy_settings.AUTH_REALM # Auth message custom in app settings
 
     if is_mercurial(request):
-        # This is a request by a mercurial client 
-
-        # If slash not present then add slash regardless of APPEND_SLASH setting
-        # since hgweb returns 404 if it isn't present.
+        """
+        If a slash is not present, would be added a slash regardless of 
+        APPEND_SLASH django setting since hgweb returns 404 if it isn't present.
+        """
         if not request.path.endswith('/'):
-            new_url = [request.get_host(), request.path+'/']
+            new_url = [request.get_host(), request.path + '/']
             if new_url[0]:
                 newurl = "%s://%s%s" % (
                     request.is_secure() and 'https' or 'http',
@@ -192,20 +59,15 @@ def repo_detail(request, slug):
                 newurl = urlquote(new_url[1])
             if request.GET:
                 newurl += '?' + request.META['QUERY_STRING']
-            return HttpResponsePermanentRedirect(newurl)
-    
+            return HttpResponseRedirect(newurl)
+        
         authed = basic_auth(request, realm, repo)
+
     else:
-        # This is a standard web request
+        # For web browsers request, Django would handle the permission  
         if not repo.can_browse(request.user):
             raise PermissionDenied(_("You do not have access to this repository"))
         authed = request.user.username
-
-        #if not request.user.is_authenticated():
-        #    return HttpResponseRedirect('%s?next=%s' %
-        #                                (settings.LOGIN_URL,request.path))
-        #else:
-        #    authed = request.user.username
 
     if not authed:
         response.status_code = 401
@@ -214,47 +76,47 @@ def repo_detail(request, slug):
     else:
         hgr.set_user(authed)
 
-    """
-    Run the `hgwebdir` method from Mercurial directly, with
-    our incognito request wrapper, output will be buffered. Wrapped
-    in a try:except: since `hgweb` *can* crash.
 
-    Mercurial now sends the content through as a generator.
-    We need to iterate over the output in order to get all of the content
-    """
-
-    template_dir = os.path.join(os.path.dirname(__file__), 'templates')
     hgserve = hgweb(str(repo.location))
-
     hgserve.reponame = repo.slug
 
-    if hgwebproxy_settings.TEMPLATE_PATHS is not None:
-        hgserve.templatepath = hgwebproxy_settings.TEMPLATE_PATHS 
-
-    hgserve.repo.ui.setconfig('web', 'description', smart_str(repo.description))
+    # TODO: is it Possible to charge the settings just for one time? 
     hgserve.repo.ui.setconfig('web', 'name', smart_str(hgserve.reponame))
-    # encode('utf-8') FIX "decoding Unicode is not supported" exception on mercurial
+    hgserve.repo.ui.setconfig('web', 'description', smart_str(repo.description))
     hgserve.repo.ui.setconfig('web', 'contact', smart_str(repo.owner.get_full_name()))
     hgserve.repo.ui.setconfig('web', 'allow_archive', repo.allow_archive)
-    # Set the style
-    style = repo.style or STYLE
-    if not templater.templatepath(style):
-        raise ImproperlyConfigured(_("'%s' is not an available style. Please check the HGPROXY_STYLE property in your settings.py" % style))
 
-    hgserve.repo.ui.setconfig('web', 'style', style)
-    hgserve.repo.ui.setconfig('web', 'baseurl', repo.get_absolute_url() )
-    # Allow push to the current user
-    hgserve.repo.ui.setconfig('web', 'allow_push', authed)
+    app_template_path = os.path.join(os.path.dirname(__file__), 'templates')
+    hgserve.repo.ui.setconfig('web', 'templates', app_template_path)
+    hgserve.templatepath = hgserve.repo.ui.config('web', 'templates', app_template_path)
 
-    #Allow serving static content from a seperate URL
-    if not settings.DEBUG:
-        hgserve.repo.ui.setconfig('web', 'staticurl', hgwebproxy_settings.STATIC_URL)
+    template_paths = templater.templatepath()
+    template_paths.insert(0, app_template_path)
+
+    if not repo.style == '':
+        hgserve.repo.ui.setconfig('web', 'style', repo.style)
+
+    hgserve.repo.ui.setconfig('web', 'baseurl', repo.get_absolute_url())
+    hgserve.repo.ui.setconfig('web', 'allow_push', authed) #Allow push to the current user
 
     if settings.DEBUG:
-        # Allow pushing in using http when debugging
-        # TODO: Add a setting for push_ssl
+        hgserve.repo.ui.setconfig('web', 'staticurl', hgwebproxy_settings.STATIC_URL)
         hgserve.repo.ui.setconfig('web', 'push_ssl', 'false')
+    else:
+        hgserve.repo.ui.setconfig('web', 'push_ssl', repo.allow_push_ssl)
 
-    # Allow hgweb errors to propagate
-    response.write(''.join([each for each in hgserve.run_wsgi(hgr)]))
-    return response
+    # Catch hgweb error to show as Django Exceptions
+    try:
+        response.write(''.join([each for each in hgserve.run_wsgi(hgr)]))
+    except KeyError:
+        return HttpResponseServerError('Mercurial has crashed', mimetype='text/html')
+
+    context = {
+        'content': response.content,
+        'reponame' : hgserve.reponame,
+        'slugpath': request.path.replace(repo.get_absolute_url(), ''),
+        'is_root': request.path == repo.get_absolute_url(),
+        'repo': repo,
+    }
+
+    return render_to_response("hgwebproxy/wrapper.html", context, RequestContext(request))

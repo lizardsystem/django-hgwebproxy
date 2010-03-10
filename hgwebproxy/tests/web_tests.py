@@ -33,7 +33,7 @@ class RequestTestCase(DjangoTestCase):
         self._assertLocationHeader(response, redirect_url)
 
     def _assertLocationHeader(self, response, request_url=None):
-        if request_url is None: 
+        if request_url is None:
             self.assertTrue(response.get("Location", None) is not None)
         else:
             self.assertEquals(response.get("Location", None), request_url)

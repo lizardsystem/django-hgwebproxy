@@ -1,16 +1,19 @@
-import os
-import re
-
-from django.core.exceptions import ImproperlyConfigured
+import os, re
+#from django.core.exceptions import ImproperlyConfigured
 from django.utils.translation import ugettext as _
 
-from mercurial import commands,ui
+from mercurial import commands, ui
+from mercurial.templater import templatepath
 
 import settings as hgproxy_settings
 
 __all__ = (
     'create_repository',
+    'clone_repository',
     'delete_repository',
+    'get_last_changeset',
+    'get_changeset_info',
+    'is_template',
 )
 
 def create_repository(location):
@@ -36,7 +39,19 @@ def create_repository(location):
         u = ui.ui()
         u.setconfig('ui', 'report_untrusted', 'off')
         u.setconfig('ui', 'interactive', 'off')
-        commands.init(u, location)
+        
+        try:
+            commands.init(u, location)
+        except:
+            return False
+        
+        return True
+
+def clone_repository(location, target):
+    """
+    TODO: Clone repository to target location
+    """
+    pass
 
 def delete_repository(location):
     """
@@ -46,3 +61,22 @@ def delete_repository(location):
     if hgproxy_settings.REPO_PERMANENT_DELETE:
         import shutil
         shutil.rmtree(location)
+
+def get_last_changeset(repo):
+    """
+    TODO: Get the last changeset info
+    """
+    pass
+
+def get_changeset_info(repo, changeset):
+    """
+    TODO: Get info in a dictionary about a specific changeset
+    """
+    pass
+                
+def is_template(template):
+    #TODO: Load project mercurial styles
+    if templatepath(template):
+        return True    
+    else:
+        return False 

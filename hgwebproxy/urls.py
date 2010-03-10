@@ -1,6 +1,6 @@
 from django.conf.urls.defaults import *
 
 urlpatterns = patterns('hgwebproxy.views',
-    url('^(?P<pattern>.*)$', 'repo_list', name='repo_list'),
-    #url('^(?P<slug>[\w-]+)/', 'repo_detail', name='repo_detail'),
+    url('^$', 'repo_index', name='repo_index'),
+    url('^(?P<username>[\w-]+)/(?P<pattern>[\w-]+)', 'repo_detail', name='repo_detail'),
 )

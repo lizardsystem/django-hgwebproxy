@@ -7,8 +7,10 @@ syntax: glob
 *.o
 *.pyc
 *.swp
-django_hgwebproxy.egg-info
-example/database.sqlite
 
 syntax: regexp
-.*\#.*\#$ 
+^\.pydevproject$
+^\.project$
+^\.settings
+\.sqlite$
+\.egg-info$

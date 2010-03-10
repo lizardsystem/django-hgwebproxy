@@ -12,8 +12,8 @@ def is_mercurial(request):
     those who are actual mercurial users to use Basic Authentication
     """
     agent = re.compile(r'^(mercurial).*')
-    accept = request.META.get('HTTP_ACCEPT',None)
-    result = agent.match(request.META.get('HTTP_USER_AGENT',""))
+    accept = request.META.get('HTTP_ACCEPT', None)
+    result = agent.match(request.META.get('HTTP_USER_AGENT', ""))
 
     if result and accept.startswith('application/mercurial-'):
         return True
@@ -22,42 +22,28 @@ def is_mercurial(request):
 
 def basic_auth(request, realm, repo):
     """
-    Very simple Basic authentication handler which hooks
-    up to Djangos underlying database of users directly.
-
-    Returns the username on successful auth, can be used
-    together with `set_user` on the request wrapper.
+    Very simple Basic authentication handler
     """
-    auth_string = request.META.get('HTTP_AUTHORIZATION')
 
-    if auth_string is None or not auth_string.startswith("Basic"):
-        return False
+    if request.user.is_authenticated():
+        user = request.user
+        username = request.user.username
+    else:
+        auth_string = request.META.get('HTTP_AUTHORIZATION')
+        
+        if auth_string is None or not auth_string.startswith("Basic"):
+            return False
 
-    _, basic_hash = auth_string.split(' ', 1)
-    username, password = basic_hash.decode('base64').split(':', 1)
-    user = authenticate(username=username, password=password)
+        _, basic_hash = auth_string.split(' ', 1)
+        username, password = basic_hash.decode('base64').split(':', 1)
+        user = authenticate(username=username, password=password)
 
     if user:
-
-        # If the user is superuser, give all privileges
-        if user.is_superuser:
-            return username
-
-        # If the repository is own by the user, give all privileges
-        if repo.owner == user:
-            return username
-
         if request.method == "POST":
-        #   User can push to any repo?
             if repo.can_push(user):
                 return username
-        #   User can push on this repo?
-        #       yes, then return username
         else:
-        #   User can pull to any repo?
             if repo.can_pull(user):
                 return username
-        #   User can pull on this repo?
-        #       yes, then return username
 
     return False
