@@ -98,9 +98,9 @@ def repo_detail(request, username, pattern):
 
     hgserve.repo.ui.setconfig('web', 'baseurl', repo.get_absolute_url())
     hgserve.repo.ui.setconfig('web', 'allow_push', authed) #Allow push to the current user
+    hgserve.repo.ui.setconfig('web', 'staticurl', hgwebproxy_settings.STATIC_URL)
 
     if settings.DEBUG:
-        hgserve.repo.ui.setconfig('web', 'staticurl', hgwebproxy_settings.STATIC_URL)
         hgserve.repo.ui.setconfig('web', 'push_ssl', 'false')
     else:
         hgserve.repo.ui.setconfig('web', 'push_ssl', repo.allow_push_ssl)
