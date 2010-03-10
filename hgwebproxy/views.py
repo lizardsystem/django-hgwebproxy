@@ -115,6 +115,7 @@ def repo_detail(request, username, pattern):
     context = {
         'content': response.content,
         'reponame' : hgserve.reponame,
+        'static_url' : hgwebproxy_settings.STATIC_URL,
         'slugpath': request.path.replace(repo.get_absolute_url(), ''),
         'is_root': request.path == repo.get_absolute_url(),
         'repo': repo,

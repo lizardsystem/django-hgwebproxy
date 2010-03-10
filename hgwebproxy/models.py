@@ -131,9 +131,11 @@ class Repository(models.Model):
     def save(self, *args, **kwargs):
         if not self.id:
             #TODO: Raise Exception if can't create repository
-            create_repository(self.location)
+            if create_repository(self.location):
+                raise Exception("Can't create repository")
+                
         super(Repository, self).save(*args, **kwargs)
-
+    
     def delete(self, *args, **kwargs):
         if not self.id:
             delete_repository(self.location)
