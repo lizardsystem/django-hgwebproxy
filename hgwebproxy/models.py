@@ -118,6 +118,13 @@ class Repository(models.Model):
         })
 
     @property
+    def get_clone_url(self):
+        """
+        TODO: Build a clone url generator
+        """
+        return u'%s%s' % ('http://127.0.0.1:8000', self.get_absolute_url())
+
+    @property
     def get_lastchange(self):
         return 'lastchange'
 

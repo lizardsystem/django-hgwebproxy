@@ -6,6 +6,10 @@
 {% block extrastyle %}
   {{ block.super }}
   <link rel="stylesheet" type="text/css" href="{% admin_media_prefix %}css/changelists.css" />
+  <style type="text/css">
+    h2 a { color: #FFF !important; }
+    h2 a:hover { text-decoration: underline !important; }    
+  </style>
 {% endblock %}
 {% block breadcrumbs %}<div class="breadcrumbs"></div>{% endblock %}
 {% block bodyclass %}change-list{% endblock %}
@@ -21,16 +25,17 @@
     <tr>
         <th>Name</th>
         <th>Description</th>
-        <th>Contact</th>
         <th>Last change</th>
         <th>Feed</th>
     </tr>
     <tbody>
     {% for repo in repos %}
     <tr class="row">
-        <th><a href="{{repo.get_absolute_url}}">{{repo.name}}</a></th>
-        <td>{{repo.description}}</td>
-        <td>{{repo.owner}}</td>
+        <th><a href="{{repo.owner.username}}/">{{repo.owner.username}}</a>/<a href="{{repo.get_absolute_url}}">{{repo.slug}}</a></th>
+        <td>
+            <p>{{repo.description}}<p>
+            <p>{% trans 'Clone url' %} : <a href="{{repo.get_absolute_url}}" title="{{repo.name}}">{{repo.get_clone_url}}</a>
+        </td>
         <td>{{repo.get_lastchange}}</td>
         <td>
             <div class="rss_logo">

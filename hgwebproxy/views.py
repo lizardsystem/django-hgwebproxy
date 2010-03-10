@@ -42,7 +42,7 @@ def repo_detail(request, username, pattern):
     requests
     """
 
-    realm = hgwebproxy_settings.AUTH_REALM # Auth message custom in app settings
+    realm = _('Basic auth')
 
     if is_mercurial(request):
         """
@@ -86,13 +86,13 @@ def repo_detail(request, username, pattern):
     hgserve.repo.ui.setconfig('web', 'contact', smart_str(repo.owner.get_full_name()))
     hgserve.repo.ui.setconfig('web', 'allow_archive', repo.allow_archive)
 
-    app_template_path = os.path.join(os.path.dirname(__file__), 'templates')
-    hgserve.repo.ui.setconfig('web', 'templates', app_template_path)
-    hgserve.templatepath = hgserve.repo.ui.config('web', 'templates', app_template_path)
 
-    template_paths = templater.templatepath()
-    template_paths.insert(0, app_template_path)
-
+    if os.path.exists(hgwebproxy_settings.STYLES_PATH):
+        template_paths = templater.templatepath()
+        template_paths.insert(0, hgwebproxy_settings.STYLES_PATH)
+        hgserve.repo.ui.setconfig('web', 'templates', hgwebproxy_settings.STYLES_PATH)
+        hgserve.templatepath = hgserve.repo.ui.config('web', 'templates', template_paths)
+    
     if not repo.style == '':
         hgserve.repo.ui.setconfig('web', 'style', repo.style)
 

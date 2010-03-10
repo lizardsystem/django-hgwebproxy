@@ -6,11 +6,8 @@
 
 {% block breadcrumbs %}{% if not is_popup %}
 <div class="breadcrumbs">
-     <a href="../../../">{% trans "Home" %}</a> &rsaquo;
-     <a href="{% url repo_list %}">{% trans "Index" %}</a> &rsaquo;
+     <a href="{% url repo_index %}">{% trans "Index" %}</a> &rsaquo;
      <a href="{{repo.get_absolute_url}}">{{ reponame|escape }}</a> &rsaquo; 
-     {% if has_change_permission %}<a href="../">{{ opts.verbose_name_plural|capfirst }}</a>{% else %}{{ opts.verbose_name_plural|capfirst }}{% endif %} &rsaquo; 
-    <a href=".">{{ original|truncatewords:"18" }}</a> &rsaquo;
     {% trans "Explore" %}
 </div>
 {% endif %}{% endblock %}
