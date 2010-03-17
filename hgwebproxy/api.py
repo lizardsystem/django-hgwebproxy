@@ -43,9 +43,7 @@ def create_repository(location):
         try:
             commands.init(u, location)
         except:
-            return False
-        
-        return True
+            Exception(_("Can't create repository"))
 
 def clone_repository(location, target):
     """

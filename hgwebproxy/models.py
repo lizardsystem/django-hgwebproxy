@@ -18,19 +18,20 @@ def validate_slug(value):
 
 def validate_location(value):
     """
+    TODO:
     Checks the repository location to make sure it exists and is writable. 
     """
     if re.match("[\w\d]+://", value):
         raise ValidationError(_("Remote repository locations are not supported"))
 
-    if not os.path.exists(os.path.join(location, '.hg')):
-        if not os.path.exists(location):
-            parent_dir = os.path.normpath(os.path.join(location, ".."))
+    if not os.path.exists(os.path.join(value, '.hg')):
+        if not os.path.exists(value):
+            parent_dir = os.path.normpath(os.path.join(value, ".."))
             if not os.path.exists(parent_dir):
                 raise ValidationError(_("This path does not exist."))
             perm_check_path = parent_dir
         else:
-            perm_check_path = location
+            perm_check_path = value
 
         if not os.access(perm_check_path, os.W_OK):
             raise ValidationError(_("You don't have sufficient permissions to create a repository at this path."))
@@ -51,7 +52,7 @@ def validate_style(value):
     
 class Repository(models.Model):
     name = models.CharField(max_length=140)
-    slug = models.SlugField(unique=True, validators=[validate_slug],
+    slug = models.SlugField(unique=True,
         help_text=_('Would be the unique url of the repo. Characters in slug must be alphanumeric with no special symbols or hyphens'))
     owner = models.ForeignKey(User)
     ascendent = models.ForeignKey('self', null=True, related_name='descendents',
@@ -61,13 +62,11 @@ class Repository(models.Model):
     description = models.TextField(blank=True)
     
     allow_archive = models.CharField(max_length=100, blank=True,
-        validators=[validate_archive],
         help_text=_("Same as in hgrc config, as: zip, bz2, gz"))
     allow_push_ssl = models.BooleanField(default=False, help_text=_("You must set your webserver to handle secure http connection"))
     is_private = models.BooleanField(default=False,
         help_text=_('Private repositories It can only be seen by the owner and allowed users'))
     style = models.CharField(max_length=256, blank=True, default="coal", 
-        validators=[validate_style],
         help_text=_('The hgweb style'), )
 
     readers = models.ManyToManyField(User,
@@ -126,14 +125,12 @@ class Repository(models.Model):
 
     @property
     def get_lastchange(self):
+        #TODO: Get last revision id and data from repository
         return 'lastchange'
 
     def save(self, *args, **kwargs):
         if not self.id:
-            #TODO: Raise Exception if can't create repository
-            if create_repository(self.location):
-                raise Exception("Can't create repository")
-                
+            create_repository(self.location)
         super(Repository, self).save(*args, **kwargs)
     
     def delete(self, *args, **kwargs):
