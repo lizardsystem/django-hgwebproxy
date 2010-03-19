@@ -40,10 +40,7 @@ def create_repository(location):
         u.setconfig('ui', 'report_untrusted', 'off')
         u.setconfig('ui', 'interactive', 'off')
         
-        try:
-            commands.init(u, location)
-        except:
-            Exception(_("Can't create repository"))
+        commands.init(u, location)
 
 def clone_repository(location, target):
     """
