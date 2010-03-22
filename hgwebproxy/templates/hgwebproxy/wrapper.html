@@ -5,13 +5,14 @@
     {{ repo.name }} :: {{ slugpath }}
 {% endblock %}
 
-{% block breadcrumbs %}{% if not is_popup %}
+{% block breadcrumbs %}
 <div class="breadcrumbs">
      <a href="{% url repo_index %}">{% trans "Index" %}</a> &rsaquo;
+     <a href="{% url user_repos repo.owner.username %}">{{ repo.owner.username }}</a> &rsaquo; 
      <a href="{{repo.get_absolute_url}}">{{ reponame|escape }}</a> &rsaquo; 
-    {% trans "Explore" %}
+     {{ slugpath }}
 </div>
-{% endif %}{% endblock %}
+{% endblock %}
 
 {% block extrastyle %}
   {{ block.super }}

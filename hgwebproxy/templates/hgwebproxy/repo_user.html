@@ -1,7 +1,7 @@
 {% extends "admin/base_site.html" %}
 {% load i18n adminmedia %}
 {% block title %}
-	{% trans 'Mercurial repository index' %}
+	{% trans 'Mercurial repositories from :' %} {{ owner }}
 {% endblock %}
 {% block extrastyle %}
   {{ block.super }}
@@ -13,7 +13,8 @@
 {% endblock %}
 {% block breadcrumbs %}
 <div class="breadcrumbs">
-     {% trans "Index" %}
+     <a href="{% url repo_index %}">{% trans "Index" %}</a> &rsaquo;
+     {{ owner }}
 </div>
 {% endblock %}
 {% block bodyclass %}change-list{% endblock %}
