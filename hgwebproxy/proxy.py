@@ -69,7 +69,7 @@ class HgRequestWrapper(object):
 
     def flush(self):
         """
-        Doesn't do anything, but `WSGI` requestuires it.
+        Doesn't do anything, but `WSGI` request requires it.
         """
         return None
 

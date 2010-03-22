@@ -27,7 +27,6 @@ def repo_detail(request, username, pattern):
     """
     Repository detail view.
     """
-
     repo_name = pattern.split('/')[0]
     repo = get_object_or_404(Repository, slug=repo_name, owner__username=username)
     
@@ -121,7 +120,7 @@ def repo_detail(request, username, pattern):
         'repo': repo,
     }
     
-    if request.path.endswith('hgwebproxy/rss-log') or request.path.endswith('hgwebproxy/atom-log'):
+    if request.path.endswith(repo_name + '/rss-log') or request.path.endswith(repo_name + '/atom-log'):
         return HttpResponse(response.content, mimetype='application/xml')
     else:
         return render_to_response("hgwebproxy/wrapper.html", context, RequestContext(request))
