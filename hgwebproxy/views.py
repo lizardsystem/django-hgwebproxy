@@ -120,5 +120,8 @@ def repo_detail(request, username, pattern):
         'is_root': request.path == repo.get_absolute_url(),
         'repo': repo,
     }
-
-    return render_to_response("hgwebproxy/wrapper.html", context, RequestContext(request))
+    
+    if request.path.endswith('hgwebproxy/rss-log') or request.path.endswith('hgwebproxy/atom-log'):
+        return HttpResponse(response.content, mimetype='application/xml')
+    else:
+        return render_to_response("hgwebproxy/wrapper.html", context, RequestContext(request))
