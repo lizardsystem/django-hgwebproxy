@@ -42,7 +42,7 @@ def repo_detail(request, username, pattern):
     requests
     """
 
-    realm = _('Basic auth')
+    realm = hgwebproxy_settings.AUTH_REALM
 
     if is_mercurial(request):
         """
@@ -64,7 +64,6 @@ def repo_detail(request, username, pattern):
         authed = basic_auth(request, realm, repo)
 
     else:
-        # For web browsers request, Django would handle the permission  
         if not repo.can_browse(request.user):
             raise PermissionDenied(_("You do not have access to this repository"))
         authed = request.user.username
@@ -90,13 +89,14 @@ def repo_detail(request, username, pattern):
     if os.path.exists(hgwebproxy_settings.STYLES_PATH):
         template_paths = templater.templatepath()
         template_paths.insert(0, hgwebproxy_settings.STYLES_PATH)
-        hgserve.repo.ui.setconfig('web', 'templates', hgwebproxy_settings.STYLES_PATH)
+        hgserve.repo.ui.setconfig('web', 'templates', template_paths)
         hgserve.templatepath = hgserve.repo.ui.config('web', 'templates', template_paths)
     
-    # TODO: Look if style exists
-    if not repo.style == '':
+    if hgwebproxy_settings.ALLOW_CUSTOM_STYLE:
         hgserve.repo.ui.setconfig('web', 'style', repo.style)
-
+    else:
+        hgserve.repo.ui.setconfig('web', 'style', hgwebproxy_settings.DEFAULT_STYLE)
+        
     hgserve.repo.ui.setconfig('web', 'baseurl', repo.get_absolute_url())
     hgserve.repo.ui.setconfig('web', 'allow_push', authed) #Allow push to the current user
     hgserve.repo.ui.setconfig('web', 'staticurl', hgwebproxy_settings.STATIC_URL)

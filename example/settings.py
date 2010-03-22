@@ -93,5 +93,5 @@ INSTALLED_APPS = (
     'hgwebproxy',
 )
 
-HGWEBPROXY_STYLE_PATH = os.path.join(BASE_DIR, "example/templates/hgstyles/django_style")
+
 

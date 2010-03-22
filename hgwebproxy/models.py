@@ -6,8 +6,10 @@ from django.db.models import permalink
 from django.contrib.auth.models import User, Group
 from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import ValidationError
+from django.contrib.sites.models import Site
 
 from hgwebproxy.api import create_repository, delete_repository, is_template
+from hgwebproxy import settings as hgwebproxy_settings
 
 def validate_slug(value):
     """
@@ -66,7 +68,7 @@ class Repository(models.Model):
     allow_push_ssl = models.BooleanField(default=False, help_text=_("You must set your webserver to handle secure http connection"))
     is_private = models.BooleanField(default=False,
         help_text=_('Private repositories It can only be seen by the owner and allowed users'))
-    style = models.CharField(max_length=256, blank=True, default="coal", 
+    style = models.CharField(max_length=256, blank=True, default=hgwebproxy_settings.DEFAULT_STYLE, 
         help_text=_('The hgweb style'), )
 
     readers = models.ManyToManyField(User,
@@ -118,10 +120,8 @@ class Repository(models.Model):
 
     @property
     def get_clone_url(self):
-        """
-        TODO: Build a clone url generator
-        """
-        return u'%s%s' % ('http://127.0.0.1:8000', self.get_absolute_url())
+        current_site = Site.objects.get_current()
+        return 'http://%s%s' % (current_site.domain, self.get_absolute_url())
 
     @property
     def get_lastchange(self):
