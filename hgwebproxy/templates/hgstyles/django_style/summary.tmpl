@@ -1,6 +1,6 @@
 <div id="container">
     <div class="page-header">
-        <h1><a href="{url}summary{sessionvars%urlparameter}">#repo|escape#</a> / summary</h1>
+        <h1><a href="{url}summary{sessionvars%urlparameter}">{repo|escape}</a> / summary</h1>
 
         <ul class="object-tools">
             <li class="current"><a href='{url}summary{sessionvars%urlparameter}'>summary</a></li>
@@ -8,11 +8,11 @@
             <li><a href="{url}log{sessionvars%urlparameter}">changelog</a></li>
             <li><a href="{url}graph/{node|short}{sessionvars%urlparameter}">graph</a></li>
             <li><a href="{url}tags{sessionvars%urlparameter}">tags</a></li>
-            <li><a href="{url}file/#node|short#{sessionvars%urlparameter}">files</a></li>
+            <li><a href="{url}file/{node|short}{sessionvars%urlparameter}">files</a></li>
         </ul>
         <br class="clear"/>
         <ul class="object-tools" style="margin-top:-2em">
-            <li class="current"><a href="{url}rev/#node|short#">changeset</a></li>
+            <li class="current"><a href="{url}rev/{node|short}">changeset</a></li>
             #archives%archiveentry#
         </ul>
     </div>
@@ -28,13 +28,13 @@
     </div>
     <dl class="overview">
         <dt>name</dt>
-        <dd>#repo|escape#</dd>
+        <dd>{repo|escape}</dd>
         <dt>description</dt>
-        <dd>#desc#</dd>
+        <dd>{desc}</dd>
         <dt>owner</dt>
-        <dd>#owner|obfuscate#</dd>
+        <dd>{owner|obfuscate}</dd>
         <dt>last change</dt>
-        <dd>#lastchange|rfc822date#</dd>
+        <dd>{lastchange|rfc822date}</dd>
     </dl>
     </div>
     <div id="changelist" class="module">
@@ -47,7 +47,7 @@
             <th width="15%"> </th>
         </thead>
         <tbody>
-        #shortlog#
+        {shortlog}
         <tr class="light">
             <td colspan="4"><a class="list" href="{url}shortlog{sessionvars%urlparameter}">...</a></td>
         </tr>
@@ -64,7 +64,7 @@
             <th> </th>
         </thead>
         <tbody>
-        #tags#
+        {tags}
         <tr class="light">
             <td colspan="3"><a class="list" href="{url}tags{sessionvars%urlparameter}">...</a></td>
         </tr>
@@ -89,5 +89,5 @@
         </tbody>
     </table>
     </div>
-#footer#
+{footer}
 </div>
