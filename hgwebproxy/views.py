@@ -23,12 +23,12 @@ import os
 def user_repos(request, username):
     repos = Repository.objects.filter(Q(owner__username=username) & Q(is_private=False))
     owner = User.objects.get(username=username)
-    return render_to_response("hgwebproxy/repo_user.html", {'repos': repos, 'owner': owner}, 
+    return render_to_response("hgwebproxy/repo_user.html", {'repos': repos, 'owner': owner},
         RequestContext(request))
 
 def repo_index(request):
     repo_all = Repository.objects.filter(Q(is_private=False) | Q(owner__username=request.user))
-    return render_to_response("hgwebproxy/repo_all.html", {'repos': repo_all}, 
+    return render_to_response("hgwebproxy/repo_all.html", {'repos': repo_all},
         RequestContext(request))
 
 def repo_detail(request, username, pattern):
@@ -37,7 +37,7 @@ def repo_detail(request, username, pattern):
     """
     repo_name = pattern.split('/')[0]
     repo = get_object_or_404(Repository, slug=repo_name, owner__username=username)
-    
+
     """
     Instance the hgweb wrapper
     """
@@ -53,7 +53,7 @@ def repo_detail(request, username, pattern):
 
     if is_mercurial(request):
         """
-        If a slash is not present, would be added a slash regardless of 
+        If a slash is not present, would be added a slash regardless of
         APPEND_SLASH django setting since hgweb returns 404 if it isn't present.
         """
         if not request.path.endswith('/'):
@@ -67,7 +67,7 @@ def repo_detail(request, username, pattern):
             if request.GET:
                 newurl += '?' + request.META['QUERY_STRING']
             return HttpResponseRedirect(newurl)
-        
+
         authed = basic_auth(request, realm, repo)
 
     else:
@@ -86,7 +86,7 @@ def repo_detail(request, username, pattern):
     hgserve = hgweb(str(repo.location))
     hgserve.reponame = repo.slug
 
-    # TODO: is it Possible to charge the settings just for one time? 
+    # TODO: is it Possible to charge the settings just for one time?
     hgserve.repo.ui.setconfig('web', 'name', smart_str(hgserve.reponame))
     hgserve.repo.ui.setconfig('web', 'description', smart_str(repo.description))
     hgserve.repo.ui.setconfig('web', 'contact', smart_str(repo.owner.get_full_name()))
@@ -98,12 +98,12 @@ def repo_detail(request, username, pattern):
         template_paths.insert(0, hgwebproxy_settings.STYLES_PATH)
         hgserve.repo.ui.setconfig('web', 'templates', template_paths)
         hgserve.templatepath = hgserve.repo.ui.config('web', 'templates', template_paths)
-    
+
     if hgwebproxy_settings.ALLOW_CUSTOM_STYLE:
         hgserve.repo.ui.setconfig('web', 'style', repo.style)
     else:
         hgserve.repo.ui.setconfig('web', 'style', hgwebproxy_settings.DEFAULT_STYLE)
-        
+
     hgserve.repo.ui.setconfig('web', 'baseurl', repo.get_absolute_url())
     hgserve.repo.ui.setconfig('web', 'allow_push', authed) #Allow push to the current user
     hgserve.repo.ui.setconfig('web', 'staticurl', hgwebproxy_settings.STATIC_URL)
@@ -127,7 +127,7 @@ def repo_detail(request, username, pattern):
         'is_root': request.path == repo.get_absolute_url(),
         'repo': repo,
     }
-    
+
     if request.path.endswith(repo_name + '/rss-log') or request.path.endswith(repo_name + '/atom-log'):
         return HttpResponse(response.content, mimetype='application/xml')
     else:

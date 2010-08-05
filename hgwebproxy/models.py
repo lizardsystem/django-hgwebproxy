@@ -21,7 +21,7 @@ def validate_slug(value):
 def validate_location(value):
     """
     TODO:
-    Checks the repository location to make sure it exists and is writable. 
+    Checks the repository location to make sure it exists and is writable.
     """
     if re.match("[\w\d]+://", value):
         raise ValidationError(_("Remote repository locations are not supported"))
@@ -50,8 +50,8 @@ def validate_style(value):
           and also in the Project
     """
     if not is_template(value):
-        raise ValidationError(_("'%s' is not an available style." % value))    
-    
+        raise ValidationError(_("'%s' is not an available style." % value))
+
 class Repository(models.Model):
     name = models.CharField(max_length=140)
     slug = models.SlugField(unique=True,
@@ -59,16 +59,16 @@ class Repository(models.Model):
     owner = models.ForeignKey(User)
     ascendent = models.ForeignKey('self', null=True, related_name='descendents',
         editable=False)
-    location = models.CharField(max_length=200, 
+    location = models.CharField(max_length=200,
         help_text=_('The absolute path to the repository. If the repository does not exist it will be created.'))
     description = models.TextField(blank=True)
-    
+
     allow_archive = models.CharField(max_length=100, blank=True,
         help_text=_("Same as in hgrc config, as: zip, bz2, gz"))
     allow_push_ssl = models.BooleanField(default=False, help_text=_("You must set your webserver to handle secure http connection"))
     is_private = models.BooleanField(default=False,
         help_text=_('Private repositories It can only be seen by the owner and allowed users'))
-    style = models.CharField(max_length=256, blank=True, default=hgwebproxy_settings.DEFAULT_STYLE, 
+    style = models.CharField(max_length=256, blank=True, default=hgwebproxy_settings.DEFAULT_STYLE,
         help_text=_('The hgweb style'), )
 
     readers = models.ManyToManyField(User,
@@ -114,7 +114,7 @@ class Repository(models.Model):
     @permalink
     def get_absolute_url(self):
         return ('repo_detail', (), {
-            'username': self.owner.username,            
+            'username': self.owner.username,
             'pattern': self.slug + "/",
         })
 
@@ -128,11 +128,14 @@ class Repository(models.Model):
         #TODO: Get last revision id and data from repository
         return 'lastchange'
 
+    def fork(self, new_name):
+        pass
+
     def save(self, *args, **kwargs):
         if not self.id:
             create_repository(self.location)
         super(Repository, self).save(*args, **kwargs)
-    
+
     def delete(self, *args, **kwargs):
         if not self.id:
             delete_repository(self.location)

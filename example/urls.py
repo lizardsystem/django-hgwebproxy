@@ -12,6 +12,6 @@ urlpatterns = patterns('',
 
 if settings.DEBUG:
     urlpatterns += patterns('',
-        (r'^static/(?P<path>.*)$', 'django.views.static.serve', 
+        (r'^static/(?P<path>.*)$', 'django.views.static.serve',
             {'document_root': hgwebproxy_settings.STATIC_PATH}),
     )

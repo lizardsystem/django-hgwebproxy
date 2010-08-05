@@ -1,10 +1,4 @@
-import os
-import re
 import cgi
-import base64
-
-from django.core.urlresolvers import reverse
-
 from mercurial import util
 
 class HgRequestWrapper(object):
@@ -83,7 +77,7 @@ class HgRequestWrapper(object):
         # Ignore respond calls after the first call since
         # correct behavior for wsgi response objects is respond
         # with the headers at this point and ignore subsequent calls.
-        # hgweb sometimes calls respond multiple times which 
+        # hgweb sometimes calls respond multiple times which
         # would cause incorrect headers to get set.
         if not self._responded:
             self._response.status_code = code

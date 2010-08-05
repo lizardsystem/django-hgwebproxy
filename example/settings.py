@@ -3,8 +3,7 @@ import os
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
-BASE_DIR = os.path.dirname(os.path.dirname(__file__))
-BASE_DIR = os.path.abspath(BASE_DIR)
+BASE_DIR = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
 
 ADMINS = (
     # ('Your Name', 'your_email@domain.com'),

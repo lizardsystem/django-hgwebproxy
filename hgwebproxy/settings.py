@@ -5,7 +5,7 @@ from django.utils.translation import ugettext as _
 AUTH_REALM  = getattr(settings, 'HGPROXY_AUTH_RELAM', _('Basic Auth'))
 STYLES_PATH = getattr(settings, 'HGWEBPROXY_STYLES_PATH',
                         join(dirname(abspath(__file__)), 'templates/hgstyles'))
-                        
+
 DEFAULT_STYLE = getattr(settings, 'HGPROXY_DEFAULT_STYLE', 'django_style')
 ALLOW_CUSTOM_STYLE = getattr(settings, 'HGPROXY_ALLOW_CUSTOM_STYLE', True)
 

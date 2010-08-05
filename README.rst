@@ -53,5 +53,5 @@ Authors in the order they were added to the file.
 * Faheem Mitha <faheem@email.unc.edu>
 * Jesper Noehr <jesper@noehr.org>
 * Micah Ransdell
-* Mario César Señoranis Ayala <mariocesar@gmail.com>
+* Mario César Señoranis Ayala <mariocesar.c50@gmail.com>
 * Ian Lewis <ianmlewis@gmail.com>
