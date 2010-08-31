@@ -81,7 +81,7 @@ def repo_detail(request, username, pattern):
         response['WWW-Authenticate'] = '''Basic realm="%s"''' % realm
         if request.META['REQUEST_METHOD']=='POST' and request.META['QUERY_STRING'].startswith("cmd=unbundle"):
             # drain request, this is a fix/workaround for http://mercurial.selenic.com/btw/issue1876
-            drain_request(request)
+            hgr.drain()
         return response
     else:
         hgr.set_user(authed)
