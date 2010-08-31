@@ -126,6 +126,11 @@ def repo_detail(request, username, pattern):
     if mercurial_request:
         return response
 
+    # make sure we return the response without wrapping if content-type is
+    # either a binary stream or text/plain (for raw changesets).
+    if response['content-type'].split(';')[0] in ('application/octet-stream', 'text/plain'):
+        return response
+
     context = {
         'content': response.content,
         'reponame' : hgserve.reponame,

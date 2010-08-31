@@ -133,6 +133,7 @@ class Repository(models.Model):
         return _(u'n/a')
 
     def fork(self, new_name):
+        # TODO: implement forking
         pass
 
     def save(self, *args, **kwargs):
