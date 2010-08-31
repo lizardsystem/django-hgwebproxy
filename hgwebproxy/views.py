@@ -9,7 +9,7 @@ from django.template import RequestContext
 from django.db.models import Q
 
 from hgwebproxy.proxy import HgRequestWrapper
-from hgwebproxy.utils import is_mercurial, basic_auth, drain_request
+from hgwebproxy.utils import is_mercurial, basic_auth
 from hgwebproxy.models import Repository
 from hgwebproxy import settings as hgwebproxy_settings
 
@@ -119,7 +119,7 @@ def repo_detail(request, username, pattern):
 
     # Catch hgweb error to show as Django Exceptions
     try:
-        response.write(''.join([each for each in hgserve.run_wsgi(hgr)]))
+        response.write(''.join(each for each in hgserve.run_wsgi(hgr)))
     except KeyError:
         return HttpResponseServerError('Mercurial has crashed', mimetype='text/html')
 
