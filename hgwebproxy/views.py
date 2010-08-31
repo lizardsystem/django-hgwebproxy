@@ -51,7 +51,8 @@ def repo_detail(request, username, pattern):
 
     realm = hgwebproxy_settings.AUTH_REALM
 
-    if is_mercurial(request):
+    mercurial_request = is_mercurial(request)
+    if mercurial_request:
         """
         If a slash is not present, would be added a slash regardless of
         APPEND_SLASH django setting since hgweb returns 404 if it isn't present.
@@ -118,6 +119,9 @@ def repo_detail(request, username, pattern):
         response.write(''.join([each for each in hgserve.run_wsgi(hgr)]))
     except KeyError:
         return HttpResponseServerError('Mercurial has crashed', mimetype='text/html')
+
+    if mercurial_request:
+        return response
 
     context = {
         'content': response.content,
