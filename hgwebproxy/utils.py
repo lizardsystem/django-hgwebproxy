@@ -1,5 +1,7 @@
 import re
 from django.contrib.auth import authenticate
+from django.core.handlers.wsgi import WSGIRequest
+from django.core.handlers.modpython import ModPythonRequest
 
 def is_mercurial(request):
     """
@@ -47,3 +49,29 @@ def basic_auth(request, realm, repo):
                 return username
 
     return False
+
+def drain_request(request):
+    """ Drains post data from request object """
+    # it's not very nice to handle this so specifically but I feel we have to
+    # using request.raw_post_data can leave us with huge python processes. (>1gb)
+    
+    if isinstance(request, ModPythonRequest):
+        req = request._req
+        BUFFER = 64*1024
+        while (True):
+            s = req.read(BUFFER)
+            if not s:
+                break
+    elif isinstance(request, WSGIRequest):
+        inp = request.environ['wsgi.input']
+        try:
+            content_length = int(request.environ.get('CONTENT_LENGTH', 0))
+        except (ValueError, TypeError):
+            content_length = 0
+        for s in util.filechunkiter(inp, limit=content_length):
+            pass
+    else:
+        # fallback
+        raw_post_data = request.raw_post_data
+        del raw_post_data
+

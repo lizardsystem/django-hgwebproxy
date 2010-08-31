@@ -9,7 +9,7 @@ from django.template import RequestContext
 from django.db.models import Q
 
 from hgwebproxy.proxy import HgRequestWrapper
-from hgwebproxy.utils import is_mercurial, basic_auth
+from hgwebproxy.utils import is_mercurial, basic_auth, drain_request
 from hgwebproxy.models import Repository
 from hgwebproxy import settings as hgwebproxy_settings
 
@@ -79,6 +79,9 @@ def repo_detail(request, username, pattern):
     if not authed:
         response.status_code = 401
         response['WWW-Authenticate'] = '''Basic realm="%s"''' % realm
+        if request.META['REQUEST_METHOD']=='POST' and request.META['QUERY_STRING'].startswith("cmd=unbundle"):
+            # drain request, this is a fix/workaround for http://mercurial.selenic.com/btw/issue1876
+            drain_request(request)
         return response
     else:
         hgr.set_user(authed)
@@ -136,3 +139,4 @@ def repo_detail(request, username, pattern):
         return HttpResponse(response.content, mimetype='application/xml')
     else:
         return render_to_response("hgwebproxy/wrapper.html", context, RequestContext(request))
+
