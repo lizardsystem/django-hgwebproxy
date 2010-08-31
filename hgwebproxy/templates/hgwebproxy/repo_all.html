@@ -1,14 +1,14 @@
 {% extends "admin/base_site.html" %}
 {% load i18n adminmedia %}
 {% block title %}
-	{% trans 'Mercurial repository index' %}
+    {% trans 'Mercurial repository index' %}
 {% endblock %}
 {% block extrastyle %}
   {{ block.super }}
   <link rel="stylesheet" type="text/css" href="{% admin_media_prefix %}css/changelists.css" />
   <style type="text/css">
     h2 a { color: #FFF !important; }
-    h2 a:hover { text-decoration: underline !important; }    
+    h2 a:hover { text-decoration: underline !important; }
   </style>
 {% endblock %}
 {% block breadcrumbs %}
@@ -40,7 +40,7 @@
             <p>{{repo.description}}<p>
             <p>{% trans 'Clone url' %} : <a href="{{repo.get_absolute_url}}" title="{{repo.name}}">{{repo.get_clone_url}}</a>
         </td>
-        <td>{{repo.get_lastchange}}</td>
+        <td>{{repo.lastchange}}</td>
         <td>
             <div class="rss_logo">
             <a href="{{repo.get_absolute_url}}rss-log">RSS</a>
@@ -58,6 +58,5 @@
         and <a href="http://djangoproject.org" title="Django">Django</a>
     </p>
 </div>
-    
 {% endblock %}
 

@@ -8,7 +8,8 @@ from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import ValidationError
 from django.contrib.sites.models import Site
 
-from hgwebproxy.api import create_repository, delete_repository, is_template
+from hgwebproxy.api import create_repository, delete_repository, is_template, \
+                            get_last_changeset
 from hgwebproxy import settings as hgwebproxy_settings
 
 def validate_slug(value):
@@ -124,9 +125,12 @@ class Repository(models.Model):
         return 'http://%s%s' % (current_site.domain, self.get_absolute_url())
 
     @property
-    def get_lastchange(self):
-        #TODO: Get last revision id and data from repository
-        return 'lastchange'
+    def lastchange(self):
+        try:
+            return get_last_changeset(self.location).date
+        except: # TODO: Catch specific exceptions here
+            pass
+        return _(u'n/a')
 
     def fork(self, new_name):
         pass
@@ -140,3 +144,4 @@ class Repository(models.Model):
         if not self.id:
             delete_repository(self.location)
         super(Repository, self).delete(*args, **kwargs)
+
