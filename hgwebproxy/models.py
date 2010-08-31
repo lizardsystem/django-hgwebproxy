@@ -127,7 +127,7 @@ class Repository(models.Model):
     @property
     def lastchange(self):
         try:
-            return get_last_changeset(self.location).date
+            return get_last_changeset(self.location)['date']
         except: # TODO: Catch specific exceptions here
             pass
         return _(u'n/a')
