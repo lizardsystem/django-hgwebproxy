@@ -120,3 +120,4 @@ class HgRequestWrapper(object):
         length = int(self.env.get('CONTENT_LENGTH', 0))
         for s in util.filechunkiter(self.inp, limit=length):
             pass
+

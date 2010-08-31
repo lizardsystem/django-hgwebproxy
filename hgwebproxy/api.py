@@ -51,10 +51,8 @@ def create_repository(location):
         commands.init(u, location)
 
 def clone_repository(location, target):
-    """
-    TODO: Clone repository to target location
-    """
-    pass
+    u = setup_ui()
+    commands.clone(u, location, target, noupdate=True)
 
 def delete_repository(location):
     """
