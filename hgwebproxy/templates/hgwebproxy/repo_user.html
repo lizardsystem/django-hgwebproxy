@@ -1,11 +1,11 @@
 {% extends "admin/base_site.html" %}
-{% load i18n adminmedia %}
+{% load i18n staticfiles %}
 {% block title %}
     {% trans 'Mercurial repositories from :' %} {{ owner }}
 {% endblock %}
 {% block extrastyle %}
   {{ block.super }}
-  <link rel="stylesheet" type="text/css" href="{% admin_media_prefix %}css/changelists.css" />
+  <link rel="stylesheet" type="text/css" href="{% static 'admin/css/changelists.css' %}" />
   <style type="text/css">
     h2 a { color: #FFF !important; }
     h2 a:hover { text-decoration: underline !important; }
