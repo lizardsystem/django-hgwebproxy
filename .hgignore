@@ -9,6 +9,7 @@ syntax: glob
 *.swp
 .idea
 .idea/*
+localsettings.py
 
 syntax: regexp
 ^\.pydevproject$
