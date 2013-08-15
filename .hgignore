@@ -7,6 +7,8 @@ syntax: glob
 *.o
 *.pyc
 *.swp
+.idea
+.idea/*
 
 syntax: regexp
 ^\.pydevproject$
