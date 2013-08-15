@@ -1,5 +1,6 @@
 {% extends "admin/base_site.html" %}
 {% load i18n staticfiles %}
+{% load url from future %}
 
 {% block title %}
     {{ repo.name }} :: {{ slugpath }}
@@ -8,8 +9,8 @@
 {% block breadcrumbs %}
 <div class="breadcrumbs">
      <a href="{% url 'repo_index' %}">{% trans "Index" %}</a> &rsaquo;
-     <a href="{% url 'user_repos' repo.owner.username %}">{{ repo.owner.username }}</a> &rsaquo; 
-     <a href="{{repo.get_absolute_url}}">{{ reponame|escape }}</a> &rsaquo; 
+     <a href="{% url 'user_repos' repo.owner.username %}">{{ repo.owner.username }}</a> &rsaquo;
+     <a href="{{repo.get_absolute_url}}">{{ reponame|escape }}</a> &rsaquo;
      {{ slugpath }}
 </div>
 {% endblock %}
